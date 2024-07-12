@@ -2,6 +2,8 @@
 
 ### Enquête sur le phishing des JO : Retracer l'attaque Partie 2
 
+![Illustration](../images/illu_Phishing.jpg)
+
 Bravo !
 
 Vous voici dans la deuxième partie de votre enquête. 

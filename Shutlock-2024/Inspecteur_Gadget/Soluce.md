@@ -2,6 +2,8 @@
 
 ## Inspecteur Gadget
 
+![Illustration](images/illu_Routeur.jpg)
+
 Une mystérieuse organisation utilise des routeurs pour communiquer.
 
 Vous, l'inspecteur gadget, avez pour mission de retrouver le contenu du dernier message.
@@ -25,7 +27,7 @@ Il a pour objectif d'introduire à l'architecture MIPS64.
 Vulnérabilités : 
 - Reverse le malware pour trouver le mot de passe admin
 - Connexion en tant qu'admin pour réécrire le champ `len` afin d'augmenter la taille de la clef wifi.
-- Cette augmentation permet un rop (Return Object Programming) dans la fonction connect_to_WIFI()
+- Cette augmentation permet un rop (Return Oriented Programming) dans la fonction connect_to_WIFI()
 - Format string permettant de récupérer le canary et leak de la libc
 
 ### Fichiers donnés 
@@ -455,7 +457,7 @@ _delay slot_ : chaque branchement et saut est suivi d'une instruction qui sera e
 
 ##### Trouver les gadgets
 
-Afin de trouver les gadgets, on utilise l'outil `ROPGadget`.
+Afin de trouver les gadgets, on utilise l'outil [ROPGadget](https://github.com/JonathanSalwan/ROPgadget).
 Pour disposer d'un nombre conséquent de gadgets, on va rechercher ceux basés sur la libc.
 
 Exemple pour trouver le gadget `jmp_s1`

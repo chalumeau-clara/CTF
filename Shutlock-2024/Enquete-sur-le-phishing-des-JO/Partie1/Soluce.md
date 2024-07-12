@@ -1,6 +1,9 @@
 ## Description
 
 ### Enquête sur le phishing des JO : Retracer l'attaque Partie 1
+
+![Illustration](../images/illu_Phishing.jpg)
+
 Mike O'Soft a été averti d'une campagne de phishing par le groupe THE HAMOR. Une des personnes ayant reçu le mail de phishing en question, s'est faite avoir. 
 
 Vous avez pour mission de réaliser l'enquête. Heureusement pour vous, les équipes du ministère ont réalisé un dump mémoire sur la machine. Dans la suite de votre enquête, un dump réseau vous sera confié. 
