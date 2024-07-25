@@ -45,7 +45,7 @@ Ce challenge a été créé pour la première édition du CTF Shutlock.
 
 Il a été réalisé afin de permettre une introduction à l'analyse de timeline et de dump mémoire.
 
-## Solve
+## Solution
 
 ### TL;DR
 
@@ -54,7 +54,12 @@ Il a été réalisé afin de permettre une introduction à l'analyse de timeline
 
 ### Informations trouvées grâce à l'énoncé
 
-- Mail de phishing
+Notre investigation commence par l'analyse de l'énoncer.
+On y apprend qu'une campagne de phishing par mail a eu lieu.
+
+> Information : Mail de phishing
+
+> Hypothèse : Potentiel téléchargement, visite de site web, ..
 
 Fichiers donnés : 
 
@@ -65,24 +70,30 @@ Fichiers donnés :
 
 ![Ordi.png](../Code_Source/Ordi.png)
 
-`Ordi.png` est le screenshot de l'ordinateur infecté.
-Cette capture d'écran nous permet de récolter des informations précieuses sur la suite de notre investigation.
+On continue par regarder le contenu de `Ordi.png` qui est le screenshot de l'ordinateur infecté.
+Cette capture d'écran nous permet de récolter des informations précieuses pour la suite de notre investigation.
+
+On y apprend les différents processus et fichiers ouverts :
 
 - Notepad : instructions.txt
 - Edge : ../Downloads/Tirage_au_sort_pour_gagner_des_places_aux_Jeux_Olympiques_de_Paris_2024.pdf
-- Autres applications de la taskbar
+
+Ainsi que les autres applications de la taskbar.
 
 ### Etude
 
-- Utilisation de l'outil [MemProcFS](https://github.com/ufrisk/MemProcFS)
+On va continuer notre investigation par l'analyse du dump mémoire.
+Pour cela, on va utiliser l'outil [MemProcFS](https://github.com/ufrisk/MemProcFS).
 
 ```bash
 MemProcFS.exe -forensic 1 -device dump.raw
 ```
 
+On va séparer notre analyse par les différentes questions posées.
+
 - **Quel est le nom du fichier malveillant ?**
 
-L'accès initial étant un mail de phishing, on regarde son système de fichiers pour voir s'il n'a pas téléchargé le fichier malveillant, cette théorie est renforcé par le screenshot analysé plus haut.
+L'accès initial étant un mail de phishing, on regarde son système de fichiers pour voir s'il n'a pas téléchargé de fichier malveillant.
 
 On regarde ainsi dans MemProcFS le dossier `M:\forensic\ntfs\1\Users\clara\Downloads\`
 On remarque qu'il a téléchargé *Tirage_au_sort_pour_gagner_des_places_aux_Jeux_Olympiques_de_Paris_2024.zip*.

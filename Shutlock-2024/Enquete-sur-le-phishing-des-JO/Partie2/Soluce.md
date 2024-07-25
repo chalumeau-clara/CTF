@@ -30,7 +30,7 @@ Il a pour objectifs :
 - Concepte de password looting
 - Base de stéganographie
 
-## Solve
+## Solution
 
 ### TL;DR
 
@@ -52,7 +52,9 @@ Fichiers donnés :
 
 ### Analyse du dump réseaux
 
-- Utilisation de l'outil [Wireshark](https://www.wireshark.org/)
+On va commencer notre investigation par l'analyse du dump réseau.
+
+On va utiliser l'outil [Wireshark](https://www.wireshark.org/).
 
 Grâce à la partie précédente, on a le C2 (Command and Control) du groupe **THE HARMOR** : 172.21.195.17. On sait également qu'il utilise le protocol `http`
 
