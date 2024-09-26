@@ -57,7 +57,7 @@ Le routeur semble appartenir à un certain `Loki` et comporte plusieurs options 
 
 ### Décompresser l'initial ramdisk
 
-La première étape est par la suite de récupérer le binaire ainsi que la libc. 
+La première étape est de récupérer le binaire ainsi que la libc. 
 Pour cela, nous allons décompresser l'initrd.
 
 ````shell
