@@ -14,3 +14,8 @@
 ## Cyberdefenders
 
 - [Malware Analysis] AsyncRAT
+
+## Hackropole
+
+- [REVERSE] Guessy
+- [REVERSE] Strike
