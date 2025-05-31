@@ -19,3 +19,4 @@
 
 - [REVERSE] Guessy
 - [REVERSE] Strike
+- [REVERSE] Tarte Tatin
