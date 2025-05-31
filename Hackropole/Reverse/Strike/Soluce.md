@@ -1,6 +1,6 @@
 # Strike Write-up 
 
-Challenge Source: [Strike Guessy](https://hackropole.fr/fr/challenges/reverse/fcsc2024-reverse-strike/) 
+Challenge Source: [Hackropole Strike](https://hackropole.fr/fr/challenges/reverse/fcsc2024-reverse-strike/) 
 
 
 # Solution
