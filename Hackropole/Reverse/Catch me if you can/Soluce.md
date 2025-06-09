@@ -90,6 +90,6 @@ If done correctly, the program will reach the ``MessageBoxA`` function that disp
 
 ![alt text](images/image-9.png)
 
-Note: The flag appear into the register too
+Note: The flag will appear into the register too
 
 ✅ **Answer**: FCSC{Wh4t 4 sup3rb 90's f4shion3d GUI}
