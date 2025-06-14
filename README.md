@@ -17,9 +17,12 @@
 
 ## Hackropole
 
+### Intro
+
 - [REVERSE] Guessy
 - [REVERSE] Strike
 - [REVERSE] Tarte Tatin
 - [REVERSE] Vault
 - [REVERSE] Catch me if you can
 - [REVERSE] Sloubi
+- [REVERSE] Password Manager
