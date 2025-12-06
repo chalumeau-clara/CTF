@@ -14,6 +14,7 @@
 ## Cyberdefenders
 
 - [Malware Analysis] AsyncRAT
+- [Malware Analysis] GetPDF
 
 ## Hackropole
 
